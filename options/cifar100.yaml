@@ -1,0 +1,79 @@
+dataset: cifar100
+root: exp/CIFAR100
+
+backbone: rebuffi
+
+
+n_classes: 100
+# One class-order for One Runtime
+class_order: [87, 0, 52, 58, 44, 91, 68, 97, 51, 15, 94, 92, 10, 72, 49, 78, 61, 14, 8, 86, 84, 96, 18, 24, 32, 45, 88, 11, 4, 67, 69, 66, 77, 47, 79, 93, 29, 50, 57, 83, 17, 81, 41, 12, 37, 59, 25, 20, 80, 73, 1, 28, 6, 46, 62, 82, 53, 9, 31, 75, 38, 63, 33, 74, 27, 22, 36, 3, 16, 21, 60, 19, 70, 90, 89, 43, 5, 42, 65, 76, 40, 30, 23, 85, 2, 95, 56, 48, 71, 64, 98, 13, 99, 7, 34, 55, 54, 26, 35, 39]
+#class_order: [58, 30, 93, 69, 21, 77, 3, 78, 12, 71, 65, 40, 16, 49, 89, 46, 24, 66, 19, 41, 5, 29, 15, 73, 11, 70, 90, 63, 67, 25, 59, 72, 80, 94, 54, 33, 18, 96, 2, 10, 43, 9, 57, 81, 76, 50, 32, 6, 37, 7, 68, 91, 88, 95, 85, 4, 60, 36, 22, 27, 39, 42, 34, 51, 55, 28, 53, 48, 38, 17, 83, 86, 56, 35, 45, 79, 99, 84, 97, 82, 98, 26, 47, 44, 62, 13, 31, 0, 75, 14, 52, 74, 8, 20, 1, 92, 87, 23, 64, 61]
+#class_order: [71, 54, 45, 32, 4, 8, 48, 66, 1, 91, 28, 82, 29, 22, 80, 27, 86, 23, 37, 47, 55, 9, 14, 68, 25, 96, 36, 90, 58, 21, 57, 81, 12, 26, 16, 89, 79, 49, 31, 38, 46, 20, 92, 88, 40, 39, 98, 94, 19, 95, 72, 24, 64, 18, 60, 50, 63, 61, 83, 76, 69, 35, 0, 52, 7, 65, 42, 73, 74, 30, 41, 3, 6, 53, 13, 56, 70, 77, 34, 97, 75, 2, 17, 93, 33, 84, 99, 51, 62, 87, 5, 15, 10, 78, 67, 44, 59, 85, 43, 11]
+#class_order: [14, 42, 51, 78, 89, 23, 40, 88, 92, 95, 13, 21, 33, 49, 80, 15, 28, 37, 47, 83, 29, 36, 69, 90, 98, 10, 61, 63, 66, 94, 5, 46, 73, 77, 87, 34, 52, 64, 72, 84, 12, 18, 56, 60, 70, 0, 9, 26, 50, 75, 4, 43, 53, 97, 99, 19, 25, 38, 48, 67, 58, 59, 65, 85, 86, 16, 22, 32, 44, 68, 55, 57, 62, 74, 79, 2, 39, 71, 93, 96, 7, 8, 17, 27, 82, 1, 35, 45, 54, 76, 3, 6, 20, 30, 91, 11, 24, 31, 41, 81]
+features_dim: 64
+
+### basic 
+base_epochs: 160
+increment_epochs: 20
+
+batch_size: 128
+workers: 1
+eval_frequency: 10
+
+
+lr: 0.1
+inc_backbone_lr: 0.001  # backbone lr in incremental sessions
+
+### incremental class setting
+initial: 50        # initial classes
+increment: 10      # incremental classes
+n_exemplar: 20
+
+overwrite_resume: true
+
+lambda_o: 0.005
+tau: 0.05
+
+### save model & meta-data after every task. 
+save: true
+label: 'bedm'
+
+### `resume_config` will be activated if `resume` is not empty
+# `resume` field should be 0, 1, 2, ... , indicates resume from which task-id 
+
+## e.g. start from scratch if `resume` is empty
+resume: 
+net: 
+meta: 
+
+# e.g. load resume 0, start from task 1
+# resume: 0
+# net: exp/cifar100/init-50_inc-10_ord-1/bedm_net_0.pt
+# meta: exp/cifar100/init-50_inc-10_ord-1/bedm_meta_0.pkl
+
+
+losses:
+ - cls
+ - orth
+ - distil
+
+
+optimizer_kwargs:
+  type: sgd
+  params: 
+  lr: 0.1
+  weight_decay: 0.0005
+
+
+# CosineAnnealingLR
+scheduler_kwargs:
+  type: cosine
+  optimizer: 
+  epochs: 
+
+
+classifier:
+  type: cosine
+  scaling: 3.0
+  proxy_per_class: 10
+  distance: neg_stable_cosine_distance

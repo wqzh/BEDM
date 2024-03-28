@@ -1,0 +1,70 @@
+dataset: imgnet100
+root: /path/to/ILSVRC2012
+
+metadata_path:
+ - data/split/imagenet/train_100.txt
+ - data/split/imagenet/val_100.txt
+
+backbone: resnet18
+
+
+n_classes: 100
+class_order: [68, 56, 78, 8, 23, 84, 90, 65, 74, 76, 40, 89, 3, 92, 55, 9, 26, 80, 43, 38, 58, 70, 77, 1, 85, 19, 17, 50, 28, 53, 13, 81, 45, 82, 6, 59, 83, 16, 15, 44, 91, 41, 72, 60, 79, 52, 20, 10, 31, 54, 37, 95, 14, 71, 96, 98, 97, 2, 64, 66, 42, 22, 35, 86, 24, 34, 87, 21, 99, 0, 88, 27, 18, 94, 11, 12, 47, 25, 30, 46, 62, 69, 36, 61, 7, 63, 75, 5, 32, 4, 51, 48, 73, 93, 39, 67, 29, 49, 57, 33]
+features_dim: 128
+
+base_epochs: 90
+increment_epochs: 20
+
+batch_size: 64
+workers: 1
+eval_frequency: 10
+
+lr: 0.05
+inc_backbone_lr: 0.001  # backbone lr in incremental sessions
+
+### incremental class setting
+initial: 50        # initial classes
+increment: 10      # incremental classes
+n_exemplar: 20
+
+overwrite_resume: true
+
+lambda_o: 0.0005
+tau: 0.05
+
+### save model & meta-data after every task. 
+save: true
+label: 'bedm'
+
+
+# e.g. load resume 0, start from task 1
+resume: 
+net: exp/imgnet100/bedm_net_0.pt
+meta: exp/imgnet100/bedm_meta_0.pkl
+
+
+losses:
+ - cls
+ - orth
+ - distil
+
+
+optimizer_kwargs:
+  type: sgd
+  params: 
+  lr: 0.05
+  weight_decay: 0.0001
+
+
+# CosineAnnealingLR
+scheduler_kwargs:
+  type: cosine
+  optimizer: 
+  epochs: 
+
+
+classifier:
+  type: cosine
+  scaling: 3.0
+  proxy_per_class: 10
+  distance: neg_stable_cosine_distance
